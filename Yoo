@@ -1,0 +1,168 @@
+target   = balance*8
+chance   = 55
+div      = 40000 
+basebet	 = balance/div
+prebet 	 = 0.10
+a        = 0
+multi    = 0
+payout   = 0
+nextbet  = basebet
+nextbet  = prebet
+sens66   = 0.93
+sens50   = 0.94 
+sens33   = 0.95 
+sens25   = 0.96 
+sens10   = 0.97 
+lstreak  = 0
+ls 		 = 20
+mod2     = 2 
+streakcnt = 0
+rec10    = {0}
+rec10cnt = 0
+rec25    = {0}
+rec25cnt = 0
+rec33    = {0}
+rec33cnt = 0
+rec50    = {0}
+rec50cnt = 0
+rec66    = {0}
+rec66cnt = 0
+initcnt  = 0
+samples = {rec10, rec25, rec33, rec50, rec66}
+size 	= 101 
+  function add10 (t)
+      local sum = 0
+      for i,v in ipairs(rec10) do
+        sum = sum + v
+      end
+      return sum
+    end
+  function add25 (t)
+      local sum = 0
+      for i,v in ipairs(rec25) do
+        sum = sum + v
+      end
+      return sum
+    end
+    function add33 (t)
+      local sum = 0
+      for i,v in ipairs(rec33) do
+        sum = sum + v
+      end
+      return sum
+    end
+    function add50 (t)
+      local sum = 0
+      for i,v in ipairs(rec50) do
+        sum = sum + v
+      end
+      return sum
+    end
+    function add66 (t)
+      local sum = 0
+      for i,v in ipairs(rec66) do
+        sum = sum + v
+      end
+      return sum
+    end
+function dobet()
+	sleep(0.1)
+    basebet = balance/div
+    if win then 
+		chance=55 
+		bethigh=false 
+	end
+    initcnt+=1
+    if lastBet.roll>66 then
+        table.insert(rec66,1,"1")
+    else 
+		table.insert(rec66,1,"0")
+    end
+    rec66cnt = ((add66(rec66)/#rec66))   
+    if math.floor(33*sens66/rec66cnt)>=100  then 
+		chance=44
+		bethigh=true 
+	end
+    if lastBet.roll>50 then
+        table.insert(rec50,1,"1")
+    else 
+		table.insert(rec50,1,"0")
+    end
+    rec50cnt = ((add50(rec50)/#rec50))
+    if math.floor(50*sens50/rec50cnt)>=100 then 
+		chance=48
+		bethigh=true 
+	end  
+    if lastBet.roll>33 then
+        table.insert(rec33,1,"1")
+    else 
+		table.insert(rec33,1,"0")
+    end
+    rec33cnt = ((add33(rec33)/#rec33))
+    if math.floor(66*sens33/rec33cnt)>=100 then 
+		chance=24
+		bethigh=true 
+	end
+    if lastBet.roll>25 then
+        table.insert(rec25,1,"1")
+    else 
+		table.insert(rec25,1,"0")
+    end
+    rec25cnt = ((add25(rec25)/#rec25))    
+    if math.floor(75*sens25/rec25cnt)>=100 then 
+		chance=15 
+		bethigh=true 
+	end
+    if lastBet.roll>10 then
+        table.insert(rec10,1,"1")
+    else 
+		table.insert(rec10,1,"0")
+    end
+    rec10cnt = ((add10(rec10)/#rec10))    
+    if math.floor(90*sens10/rec10cnt)>=100 then 
+		chance=10 
+		bethigh=true 
+	end  
+if win then
+	a = 0 
+	nextbet = basebet  
+	lstreak = 0
+else
+    a = a-currentprofit
+	payout  = (100-1)/chance
+	multi   = payout/(payout-1)
+	nextbet = (a/(payout/multi))/1.5
+	if (lstreak==ls) then      
+      chance  = 48
+    end
+	lstreak = lstreak+1
+end 
+for _, table_ in pairs(samples) do
+   if table_[size] then
+      table.remove(table_, size)
+   end
+end 
+if nextbet < basebet then 
+	nextbet = basebet 
+end
+	if initcnt>90*mod2 then 
+	end	
+if bets%10000==0 then 
+resetseed() 
+initcnt=0 
+end
+	if initcnt<90*mod2 then 
+		chance  = 44
+		nextbet = prebet
+    end
+if (chance)==44 then 
+nextbet=prebet 
+end
+	nextbet = math.floor(nextbet*10^8)/10^8
+if nextbet<=prebet then 
+nextbet=prebet 
+end
+    if balance>=target then 
+		stop() 
+    end
+end
